@@ -1,0 +1,5 @@
+# Python dependencies for Prime Att
+# These are installed automatically when installing the app
+
+pytz>=2021.1
+requests>=2.25.1

@@ -1,14 +1,14 @@
 app_name = "prime_att"
-app_title = "Prime Attendance System"
+app_title = "Prime Att"
 app_publisher = "Prime Tech BD"
-app_description = "Attendance device integration system for erpnext"
+app_description = "ZKTeco ADMS (iClock protocol) server with device management, fingerprint enrollment, and HRMS sync"
 app_email = "sayedtkg@gmail.com"
 app_license = "mit"
 
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["frappe"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -85,8 +85,8 @@ app_license = "mit"
 # Installation
 # ------------
 
-# before_install = "prime_att.install.before_install"
-# after_install = "prime_att.install.after_install"
+after_install = "prime_att.install_script.after_install"
+before_uninstall = "prime_att.install_script.before_uninstall"
 
 # Uninstallation
 # ------------
@@ -149,23 +149,31 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"prime_att.tasks.all"
-# 	],
-# 	"daily": [
-# 		"prime_att.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"prime_att.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"prime_att.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"prime_att.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"cron": {
+		"* * * * *": [
+			"prime_att.zkteco.device_manager.poll_devices"
+		]
+	},
+	"hourly": [
+		"prime_att.zkteco.sync_manager.retry_failed_syncs"
+	]
+}
+
+# Override whitelisted methods for plain-text responses
+override_whitelisted_methods = {
+	"frappe.handler.handle": "prime_att.zkteco.iclock_protocol.handle_iclock_request"
+}
+
+# Website route handlers (guest access for device endpoints)
+website_route_rules = [
+	{"from_route": "/iclock/<path:path>", "to_route": "iclock"},
+]
+
+# Auth hooks for device authentication
+auth_hooks = [
+	"prime_att.zkteco.iclock_protocol.validate_device_auth"
+]
 
 # Testing
 # -------
