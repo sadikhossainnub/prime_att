@@ -8,69 +8,83 @@ import frappe
 def setup_defaults():
 	"""Create default settings"""
 	
-	# ZK Settings
-	if not frappe.db.exists("ZK Settings", "ZK Settings"):
-		settings = frappe.get_doc({
-			"doctype": "ZK Settings",
-			"timezone": "Asia/Dhaka",
-			"duplicate_tolerance": 5,
-			"rate_limit_requests": 60
-		})
-		
-		# Add default status mappings
-		settings.append("status_mappings", {
-			"status_code": "0",
-			"log_type": "IN",
-			"description": "Check In"
-		})
-		settings.append("status_mappings", {
-			"status_code": "1",
-			"log_type": "OUT",
-			"description": "Check Out"
-		})
-		settings.append("status_mappings", {
-			"status_code": "2",
-			"log_type": "OUT",
-			"description": "Break Out"
-		})
-		settings.append("status_mappings", {
-			"status_code": "3",
-			"log_type": "IN",
-			"description": "Break In"
-		})
-		settings.append("status_mappings", {
-			"status_code": "4",
-			"log_type": "OUT",
-			"description": "Overtime Out"
-		})
-		settings.append("status_mappings", {
-			"status_code": "5",
-			"log_type": "IN",
-			"description": "Overtime In"
-		})
-		
-		settings.insert(ignore_permissions=True)
-		print("✓ Created ZK Settings with default status mappings")
+	try:
+		# ZK Settings
+		if not frappe.db.exists("ZK Settings", "ZK Settings"):
+			settings = frappe.get_doc({
+				"doctype": "ZK Settings",
+				"timezone": "Asia/Dhaka",
+				"duplicate_tolerance": 5,
+				"rate_limit_requests": 60
+			})
+			
+			# Add default status mappings
+			settings.append("status_mappings", {
+				"status_code": "0",
+				"log_type": "IN",
+				"description": "Check In"
+			})
+			settings.append("status_mappings", {
+				"status_code": "1",
+				"log_type": "OUT",
+				"description": "Check Out"
+			})
+			settings.append("status_mappings", {
+				"status_code": "2",
+				"log_type": "OUT",
+				"description": "Break Out"
+			})
+			settings.append("status_mappings", {
+				"status_code": "3",
+				"log_type": "IN",
+				"description": "Break In"
+			})
+			settings.append("status_mappings", {
+				"status_code": "4",
+				"log_type": "OUT",
+				"description": "Overtime Out"
+			})
+			settings.append("status_mappings", {
+				"status_code": "5",
+				"log_type": "IN",
+				"description": "Overtime In"
+			})
+			
+			settings.insert(ignore_permissions=True)
+			print("✓ Created ZK Settings with default status mappings")
+	except Exception as e:
+		print(f"Note: ZK Settings - {str(e)}")
 	
-	# ZK Sync Connector
-	if not frappe.db.exists("ZK Sync Connector", "ZK Sync Connector"):
-		connector = frappe.get_doc({
-			"doctype": "ZK Sync Connector",
-			"mode": "Disabled",
-			"auto_sync": 1,
-			"batch_size": 100
-		})
-		connector.insert(ignore_permissions=True)
-		print("✓ Created ZK Sync Connector")
+	try:
+		# ZK Sync Connector
+		if not frappe.db.exists("ZK Sync Connector", "ZK Sync Connector"):
+			connector = frappe.get_doc({
+				"doctype": "ZK Sync Connector",
+				"mode": "Disabled",
+				"auto_sync": 1,
+				"batch_size": 100
+			})
+			connector.insert(ignore_permissions=True)
+			print("✓ Created ZK Sync Connector")
+	except Exception as e:
+		print(f"Note: ZK Sync Connector - {str(e)}")
 	
 	# Create sample command templates
-	create_command_templates()
+	try:
+		create_command_templates()
+	except Exception as e:
+		print(f"Note: Command templates will be created after DocTypes are set up - {str(e)}")
 	
 	frappe.db.commit()
 
 
 def create_command_templates():
 	"""Create sample command templates for common devices"""
+	
+	# Check if DocType exists first
+	if not frappe.db.exists("DocType", "ZK Command Template"):
+		print("Note: ZK Command Template DocType not created yet, skipping template creation")
+		return
 	
 	templates = [
 		{
@@ -106,16 +120,19 @@ def create_command_templates():
 	]
 	
 	for template in templates:
-		if not frappe.db.exists("ZK Command Template", {
-			"device_model": template["device_model"],
-			"command_type": template["command_type"]
-		}):
-			doc = frappe.get_doc({
-				"doctype": "ZK Command Template",
-				**template
-			})
-			doc.insert(ignore_permissions=True)
-			print(f"✓ Created command template: {template['device_model']} - {template['command_type']}")
+		try:
+			if not frappe.db.exists("ZK Command Template", {
+				"device_model": template["device_model"],
+				"command_type": template["command_type"]
+			}):
+				doc = frappe.get_doc({
+					"doctype": "ZK Command Template",
+					**template
+				})
+				doc.insert(ignore_permissions=True)
+				print(f"✓ Created command template: {template['device_model']} - {template['command_type']}")
+		except Exception as e:
+			print(f"Note: Could not create template {template['device_model']} - {str(e)}")
 
 
 def setup_roles():

@@ -31,28 +31,26 @@ if [ ! -d "sites/$SITE_NAME" ]; then
     exit 1
 fi
 
-# Step 1: Install app
-echo "[1/6] Installing app..."
-bench --site $SITE_NAME install-app prime_att
+# Step 1: Install app (this will run after_install hook)
+echo "[1/5] Installing app..."
+bench --site $SITE_NAME install-app prime_att || {
+    echo "Warning: Installation hook failed. Continuing with manual setup..."
+}
 
 # Step 2: Run migrations
-echo "[2/6] Running migrations..."
+echo "[2/5] Running migrations..."
 bench --site $SITE_NAME migrate
 
 # Step 3: Create DocTypes
-echo "[3/6] Creating DocTypes..."
+echo "[3/5] Creating DocTypes..."
 bench --site $SITE_NAME execute prime_att.setup_doctypes.create_all_doctypes
 
-# Step 4: Create default settings
-echo "[4/6] Creating default settings..."
+# Step 4: Setup defaults (now that DocTypes exist)
+echo "[4/5] Creating default settings..."
 bench --site $SITE_NAME execute prime_att.install_script.setup_defaults
 
-# Step 5: Set up roles
-echo "[5/6] Setting up roles..."
-bench --site $SITE_NAME execute prime_att.install_script.setup_roles
-
-# Step 6: Build assets
-echo "[6/6] Building assets..."
+# Step 5: Build assets
+echo "[5/5] Building assets..."
 bench build --app prime_att
 
 echo ""
