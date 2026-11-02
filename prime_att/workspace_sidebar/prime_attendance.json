@@ -83,8 +83,9 @@
    "type": "Link"
   }
  ],
- "modified": "2026-11-02 07:47:54.368975",
+ "modified": "2026-11-02 16:50:41.365367",
  "modified_by": "Administrator",
+ "module": "Prime Attendance System",
  "name": "Prime Attendance",
  "owner": "Administrator",
  "standard": 1,

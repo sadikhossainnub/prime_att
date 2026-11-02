@@ -231,7 +231,6 @@ def get_doctype_definitions():
 		# Then main DocTypes that don't depend on others
 		"ZK Device": get_zk_device_def(),
 		"ZK Device Command": get_zk_device_command_def(),
-		"ZK Command Template": get_zk_command_template_def(),
 		"ZK Raw Log": get_zk_raw_log_def(),
 		"ZK Punch": get_zk_punch_def(),
 		"ZK Operation Log": get_zk_operation_log_def(),
@@ -381,23 +380,6 @@ def get_zk_device_command_def():
 		"permissions": [
 			{"role": "ZK Admin", "read": 1, "write": 1, "create": 1},
 			{"role": "ZK Operator", "read": 1}
-		]
-	}
-
-
-def get_zk_command_template_def():
-	return {
-		"doctype": "DocType",
-		"name": "ZK Command Template",
-		"module": "Prime Attendance System",
-		"fields": [
-			{"fieldname": "device_model", "label": "Device Model", "fieldtype": "Data", "reqd": 1, "in_list_view": 1},
-			{"fieldname": "command_type", "label": "Command Type", "fieldtype": "Select", "options": "ENROLL_FP\nDATA_UPDATE\nDATA_DELETE\nDATA_QUERY", "reqd": 1, "in_list_view": 1},
-			{"fieldname": "command_template", "label": "Command Template", "fieldtype": "Small Text", "reqd": 1},
-			{"fieldname": "description", "label": "Description", "fieldtype": "Text"},
-		],
-		"permissions": [
-			{"role": "ZK Admin", "read": 1, "write": 1, "create": 1}
 		]
 	}
 
