@@ -160,10 +160,8 @@ scheduler_events = {
 	]
 }
 
-# Override whitelisted methods for plain-text responses
-override_whitelisted_methods = {
-	"frappe.handler.handle": "prime_att.zkteco.iclock_protocol.handle_iclock_request"
-}
+# Intercept /iclock/* requests before Frappe routing to return plain-text
+before_request = ["prime_att.zkteco.iclock_protocol.handle_iclock_before_request"]
 
 # Website route handlers (guest access for device endpoints)
 website_route_rules = [

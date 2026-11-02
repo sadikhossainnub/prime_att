@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-11-02 07:26:23.586580",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "device",
+  "admin_pin",
+  "operation_time",
+  "cb1",
+  "operation_id",
+  "operation_object",
+  "extra_data"
+ ],
+ "fields": [
+  {
+   "fieldname": "device",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Device",
+   "options": "ZK Device"
+  },
+  {
+   "fieldname": "admin_pin",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Admin PIN"
+  },
+  {
+   "fieldname": "operation_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Operation Time"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "operation_id",
+   "fieldtype": "Data",
+   "label": "Operation ID"
+  },
+  {
+   "fieldname": "operation_object",
+   "fieldtype": "Data",
+   "label": "Operation Object"
+  },
+  {
+   "fieldname": "extra_data",
+   "fieldtype": "Data",
+   "label": "Extra Data"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-02 07:26:23.586580",
+ "modified_by": "Administrator",
+ "module": "Prime Attendance System",
+ "name": "ZK Operation Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "ZK Admin",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

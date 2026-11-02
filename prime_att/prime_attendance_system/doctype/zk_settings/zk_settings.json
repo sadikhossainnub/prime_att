@@ -1,0 +1,80 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-11-02 07:26:50.991940",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "timezone",
+  "duplicate_tolerance",
+  "sb1",
+  "status_mappings",
+  "sb2",
+  "rate_limit_requests"
+ ],
+ "fields": [
+  {
+   "default": "Asia/Dhaka",
+   "fieldname": "timezone",
+   "fieldtype": "Select",
+   "label": "Timezone",
+   "options": "Asia/Dhaka\nAsia/Kolkata\nAsia/Dubai\nAsia/Singapore\nUTC"
+  },
+  {
+   "default": "5",
+   "fieldname": "duplicate_tolerance",
+   "fieldtype": "Int",
+   "label": "Duplicate Tolerance (seconds)"
+  },
+  {
+   "fieldname": "sb1",
+   "fieldtype": "Section Break",
+   "label": "Status Code Mapping"
+  },
+  {
+   "fieldname": "status_mappings",
+   "fieldtype": "Table",
+   "label": "Status Mappings",
+   "options": "ZK Status Mapping"
+  },
+  {
+   "fieldname": "sb2",
+   "fieldtype": "Section Break",
+   "label": "Rate Limiting"
+  },
+  {
+   "default": "60",
+   "fieldname": "rate_limit_requests",
+   "fieldtype": "Int",
+   "label": "Max Requests per Minute per Device"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-11-02 07:26:50.991940",
+ "modified_by": "Administrator",
+ "module": "Prime Attendance System",
+ "name": "ZK Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "ZK Admin",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

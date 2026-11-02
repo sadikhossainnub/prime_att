@@ -1,0 +1,21 @@
+{
+ "app": "prime_att",
+ "bg_color": "gray",
+ "creation": "2026-11-02 07:19:34.521729",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon_type": "Link",
+ "idx": 0,
+ "label": "Prime Attendance",
+ "link_to": "Prime Attendance",
+ "link_type": "Workspace Sidebar",
+ "modified": "2026-11-02 07:29:30.907258",
+ "modified_by": "Administrator",
+ "name": "Prime Attendance",
+ "owner": "Administrator",
+ "restrict_removal": 0,
+ "roles": [],
+ "sidebar": "Prime Attendance",
+ "standard": 1
+}

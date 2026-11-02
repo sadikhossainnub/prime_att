@@ -88,13 +88,17 @@ def poll_devices():
 	frappe.db.commit()
 
 
-def send_command(device_sn, command, created_by=None):
+def send_command(device_sn, command, created_by=None, action_name=None):
 	"""
 	Queue a command for the device
 	Returns command doc name
 	"""
+	if not action_name:
+		action_name = derive_action_name(command)
+
 	cmd = frappe.get_doc({
 		"doctype": "ZK Device Command",
+		"action_name": action_name,
 		"device": device_sn,
 		"command": command,
 		"status": "Pending",
@@ -103,3 +107,59 @@ def send_command(device_sn, command, created_by=None):
 	cmd.insert(ignore_permissions=True)
 	frappe.db.commit()
 	return cmd.name
+
+
+def derive_action_name(command):
+	"""Derive user-friendly action name from raw command string"""
+	if "ENROLL_FP" in command:
+		return "Fingerprint Enrollment"
+	elif "UPDATE USERINFO" in command:
+		return "Push / Update User"
+	elif "DELETE USERINFO" in command:
+		return "Delete User"
+	elif "QUERY USERINFO" in command:
+		return "Pull Users from Device"
+	elif "SET OPTIONS" in command or "DateTime" in command:
+		return "Sync Time / Settings"
+	elif "REBOOT" in command:
+		return "Restart Device"
+	elif "CLEAR LOG" in command:
+		return "Clear Attendance Log"
+	return "Custom Device Action"
+
+
+@frappe.whitelist()
+def restart_device(device_sn):
+	"""Send reboot command to device"""
+	cmd_id = send_command(device_sn, "REBOOT", action_name="Restart Device")
+	frappe.msgprint(_("Restart command has been queued for {0}.").format(device_sn), indicator="blue")
+	return cmd_id
+
+
+@frappe.whitelist()
+def sync_device_time(device_sn):
+	"""Sync current server time to device"""
+	# Format for ZKTeco time sync: SET OPTIONS DateTime=YYYY-MM-DD HH:MM:SS
+	current_time = frappe.utils.now()
+	cmd = f"SET OPTIONS DateTime={current_time}"
+	cmd_id = send_command(device_sn, cmd, action_name="Sync Device Time")
+	frappe.msgprint(_("Time sync command has been queued ({0}).").format(current_time), indicator="green")
+	return cmd_id
+
+
+@frappe.whitelist()
+def sync_all_users_to_device(device_sn):
+	"""Push all active ZK Person records to this device"""
+	persons = frappe.get_all("ZK Person", filters={"is_active": 1}, fields=["name", "pin", "full_name", "privilege", "card_no"])
+	if not persons:
+		frappe.msgprint(_("No active persons found to sync."))
+		return 0
+	
+	count = 0
+	for p in persons:
+		cmd = f"DATA UPDATE USERINFO PIN={p.pin}\tName={p.full_name or ''}\tPrivilege={p.privilege or '0'}\tPassword=\tCard={p.card_no or ''}"
+		send_command(device_sn, cmd, action_name=f"Push User ({p.full_name or p.pin})")
+		count += 1
+	
+	frappe.msgprint(_("Queued sync for {0} users to device {1}.").format(count, device_sn), indicator="green")
+	return count

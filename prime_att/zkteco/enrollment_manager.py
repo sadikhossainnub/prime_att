@@ -70,8 +70,9 @@ def send_enrollment_command(enrollment, device):
 		overwrite=enrollment.overwrite
 	)
 	
-	# Send command
-	cmd_id = send_command(device.name, command, frappe.session.user)
+	# Send command with friendly action name
+	action_name = f"Enroll Finger {enrollment.finger_index} (PIN: {enrollment.person_pin})"
+	cmd_id = send_command(device.name, command, frappe.session.user, action_name=action_name)
 	
 	# Update enrollment
 	enrollment.command = cmd_id
@@ -83,22 +84,12 @@ def send_enrollment_command(enrollment, device):
 def get_enrollment_command_template(device):
 	"""
 	Get enrollment command template for device
-	Falls back to default if not configured
+	Uses standard ZKTeco push protocol template directly without requiring template doctypes
 	"""
-	if device.enrollment_command_template:
+	if getattr(device, "enrollment_command_template", None):
 		return device.enrollment_command_template
 	
-	# Check for template based on device model/firmware
-	if device.device_model:
-		template = frappe.db.get_value(
-			"ZK Command Template",
-			{"device_model": device.device_model, "command_type": "ENROLL_FP"},
-			"command_template"
-		)
-		if template:
-			return template
-	
-	# Default template
+	# Built-in standard push protocol templates by model (if special) or default
 	return "DATA ENROLL_FP PIN={pin}\tFID={fid}\tRETRY={retry}\tOVERWRITE={overwrite}"
 
 
@@ -138,7 +129,8 @@ def push_userinfo_to_device(person, device):
 	command = f"DATA UPDATE USERINFO PIN={person.pin}\tName={person.full_name or ''}\t"\
 	          f"Privilege={person.privilege or '0'}\tPassword=\tCard={person.card_no or ''}"
 	
-	cmd_id = send_command(device.name, command, frappe.session.user)
+	action_name = f"Push User: {person.full_name or person.pin} (PIN: {person.pin})"
+	cmd_id = send_command(device.name, command, frappe.session.user, action_name=action_name)
 	
 	# Update person device status
 	device_found = False
@@ -166,7 +158,8 @@ def delete_user_from_device(person_name, device_sn):
 	device = frappe.get_doc("ZK Device", device_sn)
 	
 	command = f"DATA DELETE USERINFO PIN={person.pin}"
-	cmd_id = send_command(device.name, command, frappe.session.user)
+	action_name = f"Delete User: {person.full_name or person.pin} (PIN: {person.pin})"
+	cmd_id = send_command(device.name, command, frappe.session.user, action_name=action_name)
 	
 	# Update person device status
 	for dev in person.devices:
@@ -174,7 +167,7 @@ def delete_user_from_device(person_name, device_sn):
 			person.remove(dev)
 			break
 	
-	person.save()
+	person.save(ignore_permissions=True)
 	frappe.msgprint(_("Delete command sent to device"))
 
 
@@ -186,7 +179,8 @@ def pull_users_from_device(device_sn):
 	"""
 	device = frappe.get_doc("ZK Device", device_sn)
 	command = "DATA QUERY USERINFO"
-	cmd_id = send_command(device.name, command, frappe.session.user)
+	action_name = f"Pull All Users from Device ({device.name})"
+	cmd_id = send_command(device.name, command, frappe.session.user, action_name=action_name)
 	
 	frappe.msgprint(_("Pull users command sent. Users will be created/updated when device responds."))
 	return cmd_id

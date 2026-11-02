@@ -74,8 +74,8 @@ def validate_device(sn):
 		if device.status == "Blocked":
 			return None
 		
-		# Validate comm key if configured
-		comm_key = frappe.form_dict.get('key', '')
+		# Validate comm key if configured (some firmwares use 'key', others 'comkey')
+		comm_key = frappe.form_dict.get('key', '') or frappe.form_dict.get('comkey', '')
 		if device.comm_key and device.comm_key != comm_key:
 			frappe.log_error(f"Invalid comm key for device {sn}", "Device Auth Failed")
 			return None
@@ -217,14 +217,43 @@ def create_raw_log(sn, table, body):
 		frappe.log_error(frappe.get_traceback(), "Failed to create raw log")
 
 
+def handle_iclock_before_request():
+	"""
+	before_request hook: intercepts /iclock/* requests and serves them
+	as plain text, bypassing Frappe's default JSON response path.
+	"""
+	if '/iclock/' in frappe.local.request.path:
+		frappe.local.response['type'] = 'text'
+		frappe.local.response['content_type'] = 'text/plain'
+		sn = frappe.local.request.args.get('SN', '')
+		if not sn:
+			frappe.local.response['message'] = 'ERROR: Missing SN'
+			return
+		device = validate_device(sn)
+		if not device:
+			frappe.local.response['message'] = 'ERROR: Invalid or blocked device'
+			return
+		path = frappe.local.request.path
+		method = frappe.local.request.method
+		try:
+			if '/iclock/cdata' in path:
+				response = handle_handshake(sn, device) if method == 'GET' else handle_cdata_post(sn, device)
+			elif '/iclock/getrequest' in path:
+				response = handle_getrequest(sn, device)
+			elif '/iclock/devicecmd' in path:
+				response = handle_devicecmd(sn, device)
+			else:
+				response = 'ERROR: Unknown endpoint'
+			frappe.local.response['message'] = response
+		except Exception:
+			frappe.log_error(frappe.get_traceback(), 'iClock Protocol Error')
+			frappe.local.response['message'] = 'ERROR: Internal error'
+
+
 def handle_iclock_request():
 	"""
-	Override for frappe.handler.handle to intercept /iclock requests
-	and return plain text instead of JSON
+	Legacy function kept for backwards compatibility.
+	The active hook is handle_iclock_before_request (before_request).
 	"""
 	if '/iclock/' in frappe.local.request.path:
 		return iclock_handler()
-	else:
-		# Call original handler
-		from frappe.handler import handle as original_handle
-		return original_handle()

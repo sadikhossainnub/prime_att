@@ -236,12 +236,13 @@ def bulk_sync_pending():
 		frappe.throw(_("Sync connector is disabled"))
 	
 	# Get pending checkins
+	filters = {"sync_status": ["in", ["Pending", "No Mapping"]]}
+	if connector.sync_from_date:
+		filters["log_time"] = [">=", connector.sync_from_date]
+	
 	pending = frappe.get_all(
 		"ZK Check-in Out",
-		filters={
-			"sync_status": ["in", ["Pending", "No Mapping"]],
-			"log_time": [">=", connector.sync_from_date] if connector.sync_from_date else []
-		},
+		filters=filters,
 		limit=connector.batch_size or 100
 	)
 	

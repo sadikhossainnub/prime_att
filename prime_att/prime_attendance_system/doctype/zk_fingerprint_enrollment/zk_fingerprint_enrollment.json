@@ -1,0 +1,144 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-11-02 07:26:50.427752",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "person",
+  "person_pin",
+  "device",
+  "finger_index",
+  "cb1",
+  "status",
+  "sb1",
+  "command",
+  "overwrite",
+  "retry_count",
+  "cb2",
+  "enrolled_time",
+  "template_data"
+ ],
+ "fields": [
+  {
+   "fieldname": "person",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Person",
+   "options": "ZK Person",
+   "reqd": 1
+  },
+  {
+   "fieldname": "person_pin",
+   "fieldtype": "Data",
+   "label": "Person PIN",
+   "reqd": 1
+  },
+  {
+   "fieldname": "device",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Device",
+   "options": "ZK Device",
+   "reqd": 1
+  },
+  {
+   "fieldname": "finger_index",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Finger Index (0-9)",
+   "options": "0\n1\n2\n3\n4\n5\n6\n7\n8\n9",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Queued",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Queued\nSent\nWaiting for User\nEnrolled\nTimeout\nFailed"
+  },
+  {
+   "fieldname": "sb1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "command",
+   "fieldtype": "Link",
+   "label": "Command",
+   "options": "ZK Device Command"
+  },
+  {
+   "default": "1",
+   "fieldname": "overwrite",
+   "fieldtype": "Check",
+   "label": "Overwrite Existing"
+  },
+  {
+   "default": "3",
+   "fieldname": "retry_count",
+   "fieldtype": "Int",
+   "label": "Retry Count"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "enrolled_time",
+   "fieldtype": "Datetime",
+   "label": "Enrolled Time"
+  },
+  {
+   "fieldname": "template_data",
+   "fieldtype": "Password",
+   "label": "Template Data",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-02 07:26:50.427752",
+ "modified_by": "Administrator",
+ "module": "Prime Attendance System",
+ "name": "ZK Fingerprint Enrollment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "ZK Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "ZK Operator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,202 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "field:serial_number",
+ "creation": "2026-11-02 07:26:22.630189",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "serial_number",
+  "device_name",
+  "status",
+  "is_online",
+  "cb1",
+  "device_model",
+  "location",
+  "ip_address",
+  "sb1",
+  "comm_key",
+  "poll_interval",
+  "poll_interval_short",
+  "cb2",
+  "error_delay",
+  "stamp",
+  "opstamp",
+  "sb2",
+  "push_version",
+  "language",
+  "last_activity",
+  "cb3",
+  "enrollment_command_template"
+ ],
+ "fields": [
+  {
+   "fieldname": "serial_number",
+   "fieldtype": "Data",
+   "label": "Serial Number",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "device_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Device Name",
+   "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nActive\nBlocked"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_online",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Online"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "device_model",
+   "fieldtype": "Data",
+   "label": "Device Model"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "Location"
+  },
+  {
+   "fieldname": "ip_address",
+   "fieldtype": "Data",
+   "label": "IP Address"
+  },
+  {
+   "fieldname": "sb1",
+   "fieldtype": "Section Break",
+   "label": "Configuration"
+  },
+  {
+   "fieldname": "comm_key",
+   "fieldtype": "Password",
+   "label": "Communication Key"
+  },
+  {
+   "default": "30",
+   "fieldname": "poll_interval",
+   "fieldtype": "Int",
+   "label": "Poll Interval (seconds)"
+  },
+  {
+   "default": "5",
+   "description": "Used during enrollment",
+   "fieldname": "poll_interval_short",
+   "fieldtype": "Int",
+   "label": "Short Poll Interval (seconds)"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "120",
+   "fieldname": "error_delay",
+   "fieldtype": "Int",
+   "label": "Error Delay (seconds)"
+  },
+  {
+   "default": "9999",
+   "fieldname": "stamp",
+   "fieldtype": "Int",
+   "label": "Stamp"
+  },
+  {
+   "default": "9999",
+   "fieldname": "opstamp",
+   "fieldtype": "Int",
+   "label": "OpStamp"
+  },
+  {
+   "fieldname": "sb2",
+   "fieldtype": "Section Break",
+   "label": "Device Info"
+  },
+  {
+   "fieldname": "push_version",
+   "fieldtype": "Data",
+   "label": "Push Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "language",
+   "fieldtype": "Data",
+   "label": "Language",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_activity",
+   "fieldtype": "Datetime",
+   "label": "Last Activity",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Override default enrollment command. Use {pin}, {fid}, {retry}, {overwrite}",
+   "fieldname": "enrollment_command_template",
+   "fieldtype": "Small Text",
+   "label": "Enrollment Command Template"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-02 07:26:22.630189",
+ "modified_by": "Administrator",
+ "module": "Prime Attendance System",
+ "name": "ZK Device",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "ZK Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "ZK Operator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

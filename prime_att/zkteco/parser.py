@@ -161,5 +161,5 @@ def parse_device_datetime(dt_str):
 	# If all else fails, try frappe's get_datetime
 	try:
 		return get_datetime(dt_str)
-	except:
+	except Exception:
 		return now_datetime()

@@ -115,8 +115,11 @@ def process_userinfo(sn, body):
 			else:
 				person = frappe.get_doc({
 					"doctype": "ZK Person",
-					"pin": record['pin']
+					"pin": record['pin'],
+					"full_name": record['name'] or f"User {record['pin']}",
+					"is_active": 1
 				})
+				person.insert(ignore_permissions=True)
 			
 			# Update fields
 			person.full_name = record['name'] or person.full_name or f"User {record['pin']}"
@@ -177,7 +180,7 @@ def process_fingertmp(sn, body):
 			for enrollment in enrollments:
 				enroll_doc = frappe.get_doc("ZK Fingerprint Enrollment", enrollment.name)
 				enroll_doc.status = "Enrolled"
-				enroll_doc.template_data = encrypt_template(record['template'])
+				enroll_doc.template_data = record['template']  # Password fieldtype handles encryption on save
 				enroll_doc.enrolled_time = now()
 				enroll_doc.save(ignore_permissions=True)
 			
@@ -227,10 +230,9 @@ def create_checkin_out(punch):
 		})
 		checkin.insert(ignore_permissions=True)
 		
-		# Try to sync if connector is enabled
-		from prime_att.zkteco.sync_manager import sync_checkin
+		# Try to sync if connector is enabled - use dotted string path for background job
 		frappe.enqueue(
-			sync_checkin,
+			'prime_att.zkteco.sync_manager.sync_checkin',
 			queue='default',
 			checkin_name=checkin.name
 		)
@@ -248,8 +250,12 @@ def get_log_type_from_status(status_code, punch_time):
 		if mapping.status_code == str(status_code):
 			return mapping.log_type
 	
-	# Fallback: first punch of day = IN, else OUT
-	return "IN"  # Simplified - real implementation would check day start
+	# Fallback: odd-numbered punches of the day = OUT, even-numbered = IN
+	# ZKTeco status codes: 0=Check-In, 1=Check-Out, 2=Break-Out, 3=Break-In, 4=OT-In, 5=OT-Out
+	status_int = int(status_code) if str(status_code).isdigit() else -1
+	if status_int in (1, 3, 5):  # Standard check-out codes
+		return "OUT"
+	return "IN"  # Default to IN for unknown/check-in codes
 
 
 def convert_to_site_timezone(dt):

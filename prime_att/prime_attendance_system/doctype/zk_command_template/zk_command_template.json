@@ -1,0 +1,61 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-11-02 07:26:23.207137",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "device_model",
+  "command_type",
+  "command_template",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "device_model",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Device Model",
+   "reqd": 1
+  },
+  {
+   "fieldname": "command_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Command Type",
+   "options": "ENROLL_FP\nDATA_UPDATE\nDATA_DELETE\nDATA_QUERY",
+   "reqd": 1
+  },
+  {
+   "fieldname": "command_template",
+   "fieldtype": "Small Text",
+   "label": "Command Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-02 07:26:23.207137",
+ "modified_by": "Administrator",
+ "module": "Prime Attendance System",
+ "name": "ZK Command Template",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "in_create": 0,
+ "hide_toolbar": 0,
+ "is_submittable": 0,
+ "read_only": 1
+}

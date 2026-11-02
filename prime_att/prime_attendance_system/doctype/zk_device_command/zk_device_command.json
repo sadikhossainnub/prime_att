@@ -1,0 +1,136 @@
+{
+    "actions": [],
+    "allow_bulk_edit": 1,
+    "allow_rename": 1,
+    "creation": "2026-11-02 07:26:22.998409",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "action_name",
+        "device",
+        "status",
+        "cb1",
+        "created_by",
+        "sb1",
+        "sent_time",
+        "completed_time",
+        "sb_tech",
+        "command",
+        "response"
+    ],
+    "fields": [
+        {
+            "fieldname": "action_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Action / বিবরণ",
+            "read_only": 1,
+            "search_index": 1
+        },
+        {
+            "fieldname": "device",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Device",
+            "options": "ZK Device",
+            "reqd": 1,
+            "search_index": 1
+        },
+        {
+            "default": "Pending",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Status",
+            "options": "Pending\nSent\nDone\nFailed",
+            "search_index": 1
+        },
+        {
+            "fieldname": "cb1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "created_by",
+            "fieldtype": "Link",
+            "label": "Created By",
+            "options": "User"
+        },
+        {
+            "fieldname": "sb1",
+            "fieldtype": "Section Break",
+            "label": "Execution Timing"
+        },
+        {
+            "fieldname": "sent_time",
+            "fieldtype": "Datetime",
+            "label": "Sent Time",
+            "read_only": 1
+        },
+        {
+            "fieldname": "completed_time",
+            "fieldtype": "Datetime",
+            "label": "Completed Time",
+            "read_only": 1
+        },
+        {
+            "collapsible": 1,
+            "collapsed": 1,
+            "fieldname": "sb_tech",
+            "fieldtype": "Section Break",
+            "label": "Technical Details (Developer / Advanced)"
+        },
+        {
+            "fieldname": "command",
+            "fieldtype": "Small Text",
+            "label": "Raw Protocol Command",
+            "reqd": 1
+        },
+        {
+            "fieldname": "response",
+            "fieldtype": "Text",
+            "label": "Device Raw Response",
+            "read_only": 1
+        }
+    ],
+    "grid_page_length": 50,
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-11-02 07:26:22.998409",
+    "modified_by": "Administrator",
+    "module": "Prime Attendance System",
+    "name": "ZK Device Command",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 0,
+            "print": 0,
+            "read": 1,
+            "report": 0,
+            "role": "ZK Admin",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 0,
+            "print": 0,
+            "read": 1,
+            "report": 0,
+            "role": "ZK Operator",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "row_format": "Dynamic",
+    "rows_threshold_for_grid_search": 20,
+    "sort_field": "creation",
+    "sort_order": "DESC",
+    "states": [],
+    "in_create": 0
+}
