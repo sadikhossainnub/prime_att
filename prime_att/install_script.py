@@ -70,11 +70,11 @@ def setup_defaults():
 	except Exception as e:
 		print(f"Note: ZK Sync Connector - {str(e)}")
 	
-	# Create sample command templates
-	try:
-		create_command_templates()
-	except Exception as e:
-		print(f"Note: Command templates will be created after DocTypes are set up - {str(e)}")
+	# Create sample command templates - DISABLED (technical DocType removed)
+	# try:
+	# 	create_command_templates()
+	# except Exception as e:
+	# 	print(f"Note: Command templates will be created after DocTypes are set up - {str(e)}")
 	
 	frappe.db.commit()
 
@@ -222,28 +222,25 @@ def create_doctype(doctype_name, definition):
 
 
 def get_doctype_definitions():
-	"""Return all doctype definitions in correct order (child tables first)"""
+	"""Return all doctype definitions in correct order (child tables first)
+	Only user-friendly DocTypes - technical ones handled internally
+	"""
 	return {
 		# Child tables first
 		"ZK Status Mapping": get_zk_status_mapping_def(),
 		"ZK Person Device": get_zk_person_device_def(),
 		
-		# Then main DocTypes that don't depend on others
+		# Main user-facing DocTypes
 		"ZK Device": get_zk_device_def(),
-		"ZK Device Command": get_zk_device_command_def(),
-		"ZK Raw Log": get_zk_raw_log_def(),
-		"ZK Punch": get_zk_punch_def(),
-		"ZK Operation Log": get_zk_operation_log_def(),
-		
-		# Then DocTypes that depend on others
 		"ZK Person": get_zk_person_def(),
 		"ZK Fingerprint Enrollment": get_zk_fingerprint_enrollment_def(),
+		"ZK Punch": get_zk_punch_def(),
 		"ZK Check-in Out": get_zk_checkin_out_def(),
-		"ZK Sync Log": get_zk_sync_log_def(),
 		
-		# Finally Single DocTypes with child tables
+		# Settings DocTypes
 		"ZK Settings": get_zk_settings_def(),
 		"ZK Sync Connector": get_zk_sync_connector_def(),
+		"ZK Sync Log": get_zk_sync_log_def(),
 	}
 
 
@@ -398,7 +395,6 @@ def get_zk_fingerprint_enrollment_def():
 			{"fieldname": "status", "label": "Status", "fieldtype": "Select", "options": "Queued\nSent\nWaiting for User\nEnrolled\nTimeout\nFailed", "default": "Queued", "in_list_view": 1},
 			
 			{"fieldname": "sb1", "fieldtype": "Section Break"},
-			{"fieldname": "command", "label": "Command", "fieldtype": "Link", "options": "ZK Device Command"},
 			{"fieldname": "overwrite", "label": "Overwrite Existing", "fieldtype": "Check", "default": 1},
 			{"fieldname": "retry_count", "label": "Retry Count", "fieldtype": "Int", "default": 3},
 			{"fieldname": "cb2", "fieldtype": "Column Break"},

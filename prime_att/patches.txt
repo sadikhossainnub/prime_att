@@ -1,4 +1,3 @@
 [pre_model_sync]
 
 [post_model_sync]
-prime_att.patches.v1_0.drop_zk_command_template
