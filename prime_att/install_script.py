@@ -176,6 +176,42 @@ def setup_roles():
 	frappe.db.commit()
 
 
+def setup_nginx_config():
+	"""Show nginx configuration instructions"""
+	import os
+	
+	try:
+		bench_path = frappe.utils.get_bench_path()
+		site = frappe.local.site
+		
+		print("\n" + "="*70)
+		print("📋 NGINX CONFIGURATION REQUIRED")
+		print("="*70)
+		print("\nTo enable ZKTeco device communication, add the following to your nginx:")
+		print("\n1️⃣  Run: bench setup nginx")
+		print(f"2️⃣  Edit: /etc/nginx/sites-available/{site}")
+		print("3️⃣  Add this BEFORE 'location / {' block:\n")
+		
+		print("    # ZKTeco iClock Protocol - Prime Att")
+		print("    location ~* ^/iclock/(cdata|getrequest|devicecmd) {")
+		print("        proxy_pass http://127.0.0.1:8000;")
+		print("        proxy_set_header Host $host;")
+		print("        proxy_set_header X-Real-IP $remote_addr;")
+		print("        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;")
+		print("        proxy_set_header X-Forwarded-Proto $scheme;")
+		print("        proxy_pass_header Content-Type;")
+		print("        proxy_buffering off;")
+		print("    }\n")
+		
+		print("4️⃣  Test: sudo nginx -t")
+		print("5️⃣  Reload: sudo systemctl reload nginx")
+		print("\n💡 Full example: apps/prime_att/nginx/iclock.conf")
+		print("="*70 + "\n")
+		
+	except Exception as e:
+		print(f"⚠️  Error showing nginx instructions: {str(e)}")
+
+
 def after_install():
 	"""Run after app installation"""
 	# Create DocTypes first
@@ -184,6 +220,10 @@ def after_install():
 	# Then setup defaults and roles
 	setup_defaults()
 	setup_roles()
+	
+	# Show nginx configuration instructions
+	setup_nginx_config()
+	
 	print("\n✓ Prime Att installation completed successfully!")
 
 

@@ -31,53 +31,43 @@ if [ ! -d "sites/$SITE_NAME" ]; then
     exit 1
 fi
 
-# Step 1: Install app (this will run after_install hook)
-echo "[1/5] Installing app..."
-bench --site $SITE_NAME install-app prime_att || {
-    echo "Warning: Installation hook failed. Continuing with manual setup..."
-}
+# Step 1: Install app (this will automatically create DocTypes and setup)
+echo "[1/3] Installing app..."
+bench --site $SITE_NAME install-app prime_att
 
 # Step 2: Run migrations
-echo "[2/5] Running migrations..."
+echo "[2/3] Running migrations..."
 bench --site $SITE_NAME migrate
 
-# Step 3: Create DocTypes
-echo "[3/5] Creating DocTypes..."
-bench --site $SITE_NAME execute prime_att.setup_doctypes.create_all_doctypes
-
-# Step 4: Setup defaults (now that DocTypes exist)
-echo "[4/5] Creating default settings..."
-bench --site $SITE_NAME execute prime_att.install_script.setup_defaults
-
-# Step 5: Build assets
-echo "[5/5] Building assets..."
+# Step 3: Build assets
+echo "[3/3] Building assets..."
 bench build --app prime_att
 
 echo ""
 echo "================================"
-echo "Installation Complete!"
+echo "✓ Installation Complete!"
 echo "================================"
 echo ""
-echo "Next Steps:"
+echo "📋 Next Steps:"
 echo ""
-echo "1. Configure Nginx:"
-echo "   - Copy nginx/iclock.conf contents to your site's nginx config"
-echo "   - Reload nginx: sudo systemctl reload nginx"
+echo "1️⃣  Configure Nginx (Required for devices):"
+echo "   Edit: /etc/nginx/sites-available/$SITE_NAME"
+echo "   Add nginx/iclock.conf content BEFORE 'location /' block"
+echo "   Then: sudo nginx -t && sudo systemctl reload nginx"
 echo ""
-echo "2. Configure ZK Settings:"
-echo "   - Go to: $SITE_NAME/app/zk-settings"
-echo "   - Set timezone and status mappings"
+echo "2️⃣  Configure Settings:"
+echo "   • ZK Settings: Set timezone and status mappings"
+echo "   • ZK Sync Connector: Enable HRMS sync if needed"
 echo ""
-echo "3. Configure Device:"
-echo "   - Set device to push to: http://yourserver/iclock/cdata"
+echo "3️⃣  Register Device:"
+echo "   • Create new ZK Device with serial number"
+echo "   • Set device to: http://$SITE_NAME/iclock/cdata"
 echo ""
-echo "4. Test with simulator:"
+echo "4️⃣  Test Connection:"
 echo "   cd apps/prime_att/tests"
-echo "   python test_device_simulator.py http://yourserver TESTDEV001 test"
+echo "   python test_device_simulator.py http://$SITE_NAME TESTDEV001 test"
 echo ""
-echo "5. Check logs:"
-echo "   bench --site $SITE_NAME console"
-echo "   >>> frappe.get_all('ZK Raw Log', limit=5)"
+echo "📚 Documentation: apps/prime_att/README.md"
 echo ""
 
 exit 0
