@@ -121,6 +121,8 @@ def derive_action_name(command):
 		return "Delete User"
 	elif "QUERY USERINFO" in command:
 		return "Pull Users from Device"
+	elif "QUERY ATTLOG" in command:
+		return "Fetch Attendance Logs"
 	elif "SET OPTIONS" in command or "DateTime" in command:
 		return "Sync Time / Settings"
 	elif "REBOOT" in command:
@@ -193,3 +195,24 @@ def sync_all_users_to_device(device_sn):
 	
 	frappe.msgprint(_("Queued sync for {0} users to device {1}.").format(count, device_sn), indicator="green")
 	return count
+
+
+@frappe.whitelist()
+def fetch_punches_from_device(device_sn):
+	"""
+	Request device to send attendance logs (punches)
+	
+	Roles: ZK Admin, System Manager, ZK Operator
+	"""
+	frappe.only_for("ZK Admin", "System Manager", "ZK Operator")
+	
+	# Get command template from settings
+	settings = frappe.get_single("ZK Settings")
+	cmd = settings.cmd_fetch_attlog or "DATA QUERY ATTLOG"
+	
+	cmd_id = send_command(device_sn, cmd, action_name="Fetch Attendance Logs")
+	frappe.msgprint(
+		_("Punch fetch command queued for device {0}. Punches will appear shortly.").format(device_sn),
+		indicator="blue"
+	)
+	return cmd_id

@@ -28,7 +28,8 @@
   "cmd_delete_user",
   "cmd_sync_time",
   "cmd_reboot",
-  "cmd_pull_users"
+  "cmd_pull_users",
+  "cmd_fetch_attlog"
  ],
  "fields": [
   {
@@ -171,6 +172,13 @@
    "fieldname": "cmd_pull_users",
    "fieldtype": "Data",
    "label": "Pull Users Command"
+  },
+  {
+   "default": "DATA QUERY ATTLOG",
+   "description": "Command to request attendance logs from device",
+   "fieldname": "cmd_fetch_attlog",
+   "fieldtype": "Data",
+   "label": "Fetch Attendance Logs Command"
   }
  ],
  "grid_page_length": 50,
