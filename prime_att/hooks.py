@@ -153,25 +153,24 @@ scheduler_events = {
 	"cron": {
 		"* * * * *": [
 			"prime_att.zkteco.device_manager.poll_devices"
+		],
+		"*/5 * * * *": [
+			"prime_att.zkteco.scheduler.mark_timeout_commands"
+		],
+		"*/10 * * * *": [
+			"prime_att.zkteco.scheduler.mark_timeout_enrollments"
 		]
 	},
 	"hourly": [
 		"prime_att.zkteco.sync_manager.retry_failed_syncs"
+	],
+	"daily": [
+		"prime_att.zkteco.scheduler.cleanup_old_punches"
 	]
 }
 
 # Intercept /iclock/* requests before Frappe routing to return plain-text
 before_request = ["prime_att.zkteco.iclock_protocol.handle_iclock_before_request"]
-
-# Website route handlers (guest access for device endpoints)
-website_route_rules = [
-	{"from_route": "/iclock/<path:path>", "to_route": "iclock"},
-]
-
-# Auth hooks for device authentication
-auth_hooks = [
-	"prime_att.zkteco.iclock_protocol.validate_device_auth"
-]
 
 # exempt linked doctypes from being automatically cancelled
 #

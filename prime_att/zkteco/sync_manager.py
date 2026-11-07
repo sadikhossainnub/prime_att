@@ -10,6 +10,11 @@ from requests.auth import HTTPBasicAuth
 import json
 
 
+def employee_doctype_available():
+	"""Check if Employee DocType is available (ERPNext/HRMS installed)"""
+	return frappe.db.table_exists("tabEmployee")
+
+
 def sync_checkin(checkin_name):
 	"""
 	Sync a single check-in record to HRMS
@@ -75,9 +80,9 @@ def sync_checkin(checkin_name):
 def sync_local(checkin, employee_id):
 	"""Sync to local HRMS (if installed)"""
 	try:
-		# Check if HRMS is installed
-		if "hrms" not in frappe.get_installed_apps():
-			return False, "HRMS app not installed"
+		# Check if Employee DocType is available
+		if not employee_doctype_available():
+			return False, "Employee DocType not available (ERPNext/HRMS not installed)"
 		
 		# Check for duplicate
 		existing = frappe.db.exists(
@@ -130,14 +135,24 @@ def sync_remote(checkin, employee_id, connector):
 			"device_id": checkin.device
 		}
 		
-		# Check for duplicate first (GET)
-		check_url = f"{url}?filters={json.dumps([['employee', '=', employee_id], ['time', '=', data['time']]])}&fields=['name']"
-		check_response = requests.get(check_url, headers=headers, timeout=10)
+		# Check for duplicate first (GET) - FIX: Use proper params and json.dumps
+		filters = [["employee", "=", employee_id], ["time", "=", data['time']]]
+		fields = ["name"]
 		
-		if check_response.status_code == 200:
-			existing = check_response.json().get("data", [])
-			if existing:
-				return True, existing[0].get("name")
+		params = {
+			"filters": json.dumps(filters),
+			"fields": json.dumps(fields)
+		}
+		
+		check_response = requests.get(url, headers=headers, params=params, timeout=10)
+		
+		# Check response status before proceeding
+		if check_response.status_code != 200:
+			return False, f"Duplicate check failed: {check_response.status_code} - {check_response.text}"
+		
+		existing = check_response.json().get("data", [])
+		if existing:
+			return True, existing[0].get("name")
 		
 		# Create new record (POST)
 		response = requests.post(url, headers=headers, json=data, timeout=30)
@@ -158,17 +173,27 @@ def sync_remote(checkin, employee_id, connector):
 
 def get_employee_id(person):
 	"""Get employee ID from ZK Person mapping"""
-	if person.employee:
-		return person.employee
+	# Check if employee_id field is set
+	if person.employee_id:
+		return person.employee_id
 	
-	# Try reverse lookup by attendance_device_id
-	if frappe.db.exists("Employee", {"attendance_device_id": person.pin}):
-		employee = frappe.db.get_value("Employee", {"attendance_device_id": person.pin}, "name")
-		# Update mapping
-		person.employee = employee
+	# Legacy: check old employee field (Link)
+	if hasattr(person, 'employee') and person.employee:
+		# Migrate to employee_id
+		person.employee_id = person.employee
 		person.save(ignore_permissions=True)
 		frappe.db.commit()
-		return employee
+		return person.employee_id
+	
+	# Try reverse lookup by attendance_device_id (only if Employee DocType available)
+	if employee_doctype_available():
+		employee = frappe.db.get_value("Employee", {"attendance_device_id": person.pin}, "name")
+		if employee:
+			# Update mapping
+			person.employee_id = employee
+			person.save(ignore_permissions=True)
+			frappe.db.commit()
+			return employee
 	
 	return None
 
@@ -258,6 +283,17 @@ def bulk_sync_pending():
 
 @frappe.whitelist()
 def retry_failed_checkin(checkin_name):
-	"""Manually retry a single failed check-in"""
-	sync_checkin(checkin_name)
+	"""
+	Manually retry a single failed check-in
+	
+	Roles: ZK Admin, System Manager
+	"""
+	frappe.only_for("ZK Admin", "System Manager")
+	
+	# Enqueue instead of running inline
+	frappe.enqueue(
+		sync_checkin,
+		queue='default',
+		checkin_name=checkin_name
+	)
 	frappe.msgprint(_("Retry queued"))

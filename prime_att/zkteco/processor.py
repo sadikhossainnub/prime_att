@@ -9,6 +9,40 @@ from prime_att.zkteco.parser import parse_attlog, parse_operlog, parse_userinfo,
 import pytz
 
 
+def get_or_create_person(pin, is_placeholder=True):
+	"""
+	Get existing person or create new one with DuplicateEntryError handling
+	Returns person name
+	"""
+	# First try to get existing
+	person_name = frappe.db.get_value("ZK Person", {"pin": pin}, "name")
+	if person_name:
+		return person_name
+	
+	# Try to create new
+	try:
+		person_doc = frappe.get_doc({
+			"doctype": "ZK Person",
+			"pin": pin,
+			"full_name": f"User {pin}",
+			"is_active": 1,
+			"is_placeholder": 1 if is_placeholder else 0
+		})
+		person_doc.insert(ignore_permissions=True)
+		frappe.db.commit()
+		return person_doc.name
+		
+	except frappe.exceptions.DuplicateEntryError:
+		# Another process created it concurrently - fetch it
+		frappe.db.rollback()
+		person_name = frappe.db.get_value("ZK Person", {"pin": pin}, "name")
+		if person_name:
+			return person_name
+		# Still not found? Log error and raise
+		frappe.log_error(f"Failed to get or create person with PIN {pin}", "Person Creation Error")
+		raise
+
+
 def process_device_data(sn, table, body):
 	"""
 	Process device data in background
@@ -117,7 +151,8 @@ def process_userinfo(sn, body):
 					"doctype": "ZK Person",
 					"pin": record['pin'],
 					"full_name": record['name'] or f"User {record['pin']}",
-					"is_active": 1
+					"is_active": 1,
+					"is_placeholder": 0  # Device pushed user, not a placeholder
 				})
 				person.insert(ignore_permissions=True)
 			
@@ -126,6 +161,7 @@ def process_userinfo(sn, body):
 			person.card_no = record['card_no'] or person.card_no
 			person.privilege = record['privilege'] or person.privilege or "0"
 			person.is_active = 1
+			person.is_placeholder = 0  # Promote placeholder if it was one
 			
 			# Update device registration status
 			device_found = False
@@ -155,16 +191,8 @@ def process_fingertmp(sn, body):
 	
 	for record in records:
 		try:
-			# Find person
-			if not frappe.db.exists("ZK Person", {"pin": record['pin']}):
-				# Create unmapped person
-				person = frappe.get_doc({
-					"doctype": "ZK Person",
-					"pin": record['pin'],
-					"full_name": f"User {record['pin']}",
-					"is_active": 1
-				})
-				person.insert(ignore_permissions=True)
+			# Get or create person (handles concurrent creation)
+			person_name = get_or_create_person(record['pin'], is_placeholder=True)
 			
 			# Update enrollment status if there's a pending enrollment
 			enrollments = frappe.get_all(
@@ -201,22 +229,16 @@ def process_fingertmp(sn, body):
 def create_checkin_out(punch):
 	"""Create ZK Check-in Out record from punch"""
 	try:
-		# Get person
-		person = frappe.db.get_value("ZK Person", {"pin": punch.pin}, "name")
+		# Get or create person (handles concurrent creation)
+		person = get_or_create_person(punch.pin, is_placeholder=True)
 		
-		if not person:
-			# Create unmapped person
-			person_doc = frappe.get_doc({
-				"doctype": "ZK Person",
-				"pin": punch.pin,
-				"full_name": f"User {punch.pin}",
-				"is_active": 1
-			})
-			person_doc.insert(ignore_permissions=True)
-			person = person_doc.name
-		
-		# Determine log type (IN/OUT)
-		log_type = get_log_type_from_status(punch.status_code, punch.punch_time)
+		# Determine log type (IN/OUT) - pass pin and device for alternate/first-last modes
+		log_type = get_log_type_from_status(
+			punch.status_code, 
+			punch.punch_time,
+			person_pin=punch.pin,
+			device=punch.device
+		)
 		
 		# Create check-in/out
 		checkin = frappe.get_doc({
@@ -241,21 +263,79 @@ def create_checkin_out(punch):
 		frappe.log_error(frappe.get_traceback(), f"Failed to create check-in/out for punch {punch.name}")
 
 
-def get_log_type_from_status(status_code, punch_time):
-	"""Determine IN/OUT from status code and rules"""
-	# Get status mapping from settings
+def get_log_type_from_status(status_code, punch_time, person_pin=None, device=None):
+	"""
+	Determine IN/OUT from status code and rules
+	Supports three modes:
+	1. Device Status Mapping - use status code mappings
+	2. Alternate Per Person Per Day - odd=IN, even=OUT (first punch of day is IN)
+	3. First/Last of Day - first punch=IN, last=OUT
+	"""
 	settings = frappe.get_single("ZK Settings")
+	mode = settings.inout_mode or "Device Status Mapping"
 	
-	for mapping in settings.status_mappings:
-		if mapping.status_code == str(status_code):
-			return mapping.log_type
+	if mode == "Device Status Mapping":
+		# Use status mappings from settings
+		for mapping in settings.status_mappings:
+			if mapping.status_code == str(status_code):
+				return mapping.log_type
+		
+		# Fallback: standard ZKTeco status codes
+		# 0=Check-In, 1=Check-Out, 2=Break-Out, 3=Break-In, 4=OT-In, 5=OT-Out
+		status_int = int(status_code) if str(status_code).isdigit() else -1
+		if status_int in (1, 3, 5):  # Standard check-out codes
+			return "OUT"
+		return "IN"  # Default to IN for unknown/check-in codes
 	
-	# Fallback: odd-numbered punches of the day = OUT, even-numbered = IN
-	# ZKTeco status codes: 0=Check-In, 1=Check-Out, 2=Break-Out, 3=Break-In, 4=OT-In, 5=OT-Out
-	status_int = int(status_code) if str(status_code).isdigit() else -1
-	if status_int in (1, 3, 5):  # Standard check-out codes
-		return "OUT"
-	return "IN"  # Default to IN for unknown/check-in codes
+	elif mode == "Alternate Per Person Per Day":
+		# Count punches for this person on this day
+		if not person_pin or not punch_time:
+			return "IN"  # Safe fallback
+		
+		# Get date part only
+		punch_date = frappe.utils.get_datetime(punch_time).date()
+		
+		# Count existing punches for this person on this date
+		person_name = frappe.db.get_value("ZK Person", {"pin": person_pin}, "name")
+		if not person_name:
+			return "IN"  # First punch for unknown person
+		
+		count = frappe.db.count("ZK Check-in Out", {
+			"person": person_name,
+			"log_time": ["between", [
+				f"{punch_date} 00:00:00",
+				f"{punch_date} 23:59:59"
+			]]
+		})
+		
+		# First punch (count=0) = IN, then alternate
+		return "IN" if count % 2 == 0 else "OUT"
+	
+	elif mode == "First/Last of Day":
+		# First punch of day = IN, all others = OUT (simple rule)
+		# More sophisticated: actually determine based on time proximity
+		if not person_pin or not punch_time:
+			return "IN"
+		
+		punch_date = frappe.utils.get_datetime(punch_time).date()
+		person_name = frappe.db.get_value("ZK Person", {"pin": person_pin}, "name")
+		if not person_name:
+			return "IN"
+		
+		# Check if there are any punches earlier today
+		earlier_punch = frappe.db.get_value("ZK Check-in Out", {
+			"person": person_name,
+			"log_time": ["between", [
+				f"{punch_date} 00:00:00",
+				punch_time
+			]]
+		}, "name")
+		
+		# If there's an earlier punch, this is OUT; otherwise IN
+		return "OUT" if earlier_punch else "IN"
+	
+	# Default fallback
+	return "IN"
 
 
 def convert_to_site_timezone(dt):

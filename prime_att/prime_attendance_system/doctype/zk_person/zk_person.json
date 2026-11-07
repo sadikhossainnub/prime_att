@@ -13,7 +13,8 @@
         "privilege",
         "is_active",
         "cb1",
-        "employee",
+        "employee_id",
+        "is_placeholder",
         "sb1",
         "devices"
     ],
@@ -58,11 +59,17 @@
             "fieldtype": "Column Break"
         },
         {
-            "description": "ERPNext/HRMS Employee record",
-            "fieldname": "employee",
-            "fieldtype": "Link",
-            "label": "Employee",
-            "options": "Employee"
+            "description": "ERPNext/HRMS Employee ID (if Employee DocType available)",
+            "fieldname": "employee_id",
+            "fieldtype": "Data",
+            "label": "Employee ID"
+        },
+        {
+            "default": "0",
+            "description": "Auto-created from unknown PIN (not synced to device)",
+            "fieldname": "is_placeholder",
+            "fieldtype": "Check",
+            "label": "Is Placeholder"
         },
         {
             "fieldname": "sb1",

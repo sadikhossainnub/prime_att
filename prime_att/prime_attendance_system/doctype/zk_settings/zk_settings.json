@@ -9,10 +9,26 @@
  "field_order": [
   "timezone",
   "duplicate_tolerance",
+  "sb_security",
+  "allow_auto_register",
+  "max_post_body_size",
+  "rate_limit_requests",
+  "sb_inout",
+  "inout_mode",
   "sb1",
   "status_mappings",
-  "sb2",
-  "rate_limit_requests"
+  "sb_commands",
+  "command_timeout",
+  "command_max_attempts",
+  "command_success_return",
+  "enrollment_timeout",
+  "sb_templates",
+  "cmd_enroll_fp",
+  "cmd_push_user",
+  "cmd_delete_user",
+  "cmd_sync_time",
+  "cmd_reboot",
+  "cmd_pull_users"
  ],
  "fields": [
   {
@@ -29,6 +45,44 @@
    "label": "Duplicate Tolerance (seconds)"
   },
   {
+   "fieldname": "sb_security",
+   "fieldtype": "Section Break",
+   "label": "Security"
+  },
+  {
+   "default": "1",
+   "description": "Allow unknown devices to register automatically (status Pending)",
+   "fieldname": "allow_auto_register",
+   "fieldtype": "Check",
+   "label": "Allow Auto-Register New Devices"
+  },
+  {
+   "default": "1048576",
+   "description": "Max size in bytes for POST body (default 1MB)",
+   "fieldname": "max_post_body_size",
+   "fieldtype": "Int",
+   "label": "Max POST Body Size"
+  },
+  {
+   "default": "60",
+   "fieldname": "rate_limit_requests",
+   "fieldtype": "Int",
+   "label": "Max Requests per Minute per Device"
+  },
+  {
+   "fieldname": "sb_inout",
+   "fieldtype": "Section Break",
+   "label": "IN/OUT Detection"
+  },
+  {
+   "default": "Device Status Mapping",
+   "description": "UNVERIFIED: Different modes for determining IN/OUT from punches",
+   "fieldname": "inout_mode",
+   "fieldtype": "Select",
+   "label": "IN/OUT Mode",
+   "options": "Device Status Mapping\nAlternate Per Person Per Day\nFirst/Last of Day"
+  },
+  {
    "fieldname": "sb1",
    "fieldtype": "Section Break",
    "label": "Status Code Mapping"
@@ -40,15 +94,83 @@
    "options": "ZK Status Mapping"
   },
   {
-   "fieldname": "sb2",
+   "fieldname": "sb_commands",
    "fieldtype": "Section Break",
-   "label": "Rate Limiting"
+   "label": "Command Lifecycle"
   },
   {
-   "default": "60",
-   "fieldname": "rate_limit_requests",
+   "default": "120",
+   "description": "Seconds to wait for device response before timeout",
+   "fieldname": "command_timeout",
    "fieldtype": "Int",
-   "label": "Max Requests per Minute per Device"
+   "label": "Command Timeout"
+  },
+  {
+   "default": "3",
+   "description": "Max resend attempts (destructive commands never resent)",
+   "fieldname": "command_max_attempts",
+   "fieldtype": "Int",
+   "label": "Max Command Attempts"
+  },
+  {
+   "default": "0",
+   "description": "UNVERIFIED: Return code indicating success (e.g., Return=0)",
+   "fieldname": "command_success_return",
+   "fieldtype": "Data",
+   "label": "Success Return Code"
+  },
+  {
+   "default": "180",
+   "description": "Seconds before enrollment times out",
+   "fieldname": "enrollment_timeout",
+   "fieldtype": "Int",
+   "label": "Enrollment Timeout"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_templates",
+   "fieldtype": "Section Break",
+   "label": "Command Templates (UNVERIFIED)"
+  },
+  {
+   "default": "DATA ENROLL_FP PIN={pin}\tFID={fid}\tRETRY={retry}\tOVERWRITE={overwrite}",
+   "description": "Variables: {pin}, {fid}, {retry}, {overwrite}",
+   "fieldname": "cmd_enroll_fp",
+   "fieldtype": "Small Text",
+   "label": "Enroll Fingerprint Command"
+  },
+  {
+   "default": "DATA UPDATE USERINFO PIN={pin}\tName={name}\tPrivilege={privilege}\tCard={card}",
+   "description": "Variables: {pin}, {name}, {privilege}, {card}",
+   "fieldname": "cmd_push_user",
+   "fieldtype": "Small Text",
+   "label": "Push User Command"
+  },
+  {
+   "default": "DATA DELETE USERINFO PIN={pin}",
+   "description": "Variables: {pin}",
+   "fieldname": "cmd_delete_user",
+   "fieldtype": "Small Text",
+   "label": "Delete User Command"
+  },
+  {
+   "default": "DATA UPDATE SYSTIME {time}",
+   "description": "Variables: {time}",
+   "fieldname": "cmd_sync_time",
+   "fieldtype": "Small Text",
+   "label": "Sync Time Command"
+  },
+  {
+   "default": "REBOOT",
+   "fieldname": "cmd_reboot",
+   "fieldtype": "Data",
+   "label": "Reboot Command"
+  },
+  {
+   "default": "DATA QUERY USERINFO",
+   "fieldname": "cmd_pull_users",
+   "fieldtype": "Data",
+   "label": "Pull Users Command"
   }
  ],
  "grid_page_length": 50,
@@ -69,6 +191,11 @@
    "read": 1,
    "role": "ZK Admin",
    "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "System Manager",
    "write": 1
   }
  ],

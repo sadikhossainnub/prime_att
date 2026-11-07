@@ -15,7 +15,11 @@ def enroll_fingerprint(person_name, device_sn, finger_index, overwrite=1):
 	2. Send ENROLL_FP command
 	3. Device enters enrollment mode
 	4. Store enrollment record
+	
+	Roles: ZK Operator, ZK Admin, System Manager
 	"""
+	frappe.only_for("ZK Operator", "ZK Admin", "System Manager")
+	
 	person = frappe.get_doc("ZK Person", person_name)
 	device = frappe.get_doc("ZK Device", device_sn)
 	
@@ -98,7 +102,11 @@ def push_to_devices(person_name, device_list=None):
 	"""
 	Push user info to selected devices
 	If device_list is None, push to all configured devices
+	
+	Roles: ZK Operator, ZK Admin, System Manager
 	"""
+	frappe.only_for("ZK Operator", "ZK Admin", "System Manager")
+	
 	person = frappe.get_doc("ZK Person", person_name)
 	
 	if not device_list:
@@ -153,7 +161,13 @@ def push_userinfo_to_device(person, device):
 
 @frappe.whitelist()
 def delete_user_from_device(person_name, device_sn):
-	"""Delete user from device"""
+	"""
+	Delete user from device
+	
+	Roles: ZK Admin, System Manager only
+	"""
+	frappe.only_for("ZK Admin", "System Manager")
+	
 	person = frappe.get_doc("ZK Person", person_name)
 	device = frappe.get_doc("ZK Device", device_sn)
 	
@@ -176,7 +190,11 @@ def pull_users_from_device(device_sn):
 	"""
 	Request device to send all user info
 	Command: DATA QUERY USERINFO
+	
+	Roles: ZK Operator, ZK Admin, System Manager
 	"""
+	frappe.only_for("ZK Operator", "ZK Admin", "System Manager")
+	
 	device = frappe.get_doc("ZK Device", device_sn)
 	command = "DATA QUERY USERINFO"
 	action_name = f"Pull All Users from Device ({device.name})"
@@ -188,7 +206,13 @@ def pull_users_from_device(device_sn):
 
 @frappe.whitelist()
 def check_enrollment_status(enrollment_name):
-	"""Check status of enrollment"""
+	"""
+	Check status of enrollment
+	
+	Roles: ZK Admin, System Manager
+	"""
+	frappe.only_for("ZK Admin", "System Manager")
+	
 	enrollment = frappe.get_doc("ZK Fingerprint Enrollment", enrollment_name)
 	
 	# Check command status
@@ -222,13 +246,22 @@ def bulk_map_employees():
 	"""
 	Bulk mapping tool - map unmapped persons to employees
 	Returns list of unmapped persons
+	
+	Roles: ZK Operator, ZK Admin, System Manager
 	"""
+	frappe.only_for("ZK Operator", "ZK Admin", "System Manager")
+	
+	# Check if Employee DocType is available
+	if not employee_doctype_available():
+		frappe.throw(_("Employee DocType not available. ERPNext/HRMS must be installed."))
+	
 	# Get unmapped persons
 	unmapped = frappe.get_all(
 		"ZK Person",
 		filters={
-			"employee": ["is", "not set"],
-			"is_active": 1
+			"employee_id": ["is", "not set"],
+			"is_active": 1,
+			"is_placeholder": 0  # Don't map placeholders
 		},
 		fields=["name", "pin", "full_name", "card_no"]
 	)
@@ -242,8 +275,11 @@ def bulk_map_employees():
 			"name"
 		)
 		if employee:
-			frappe.db.set_value("ZK Person", person_info.name, "employee", employee)
+			frappe.db.set_value("ZK Person", person_info.name, "employee_id", employee)
 			mapped_count += 1
+			
+			# Trigger sync for "No Mapping" check-ins
+			retry_no_mapping_for_person(person_info.name)
 	
 	if mapped_count > 0:
 		frappe.db.commit()
@@ -252,8 +288,9 @@ def bulk_map_employees():
 	unmapped = frappe.get_all(
 		"ZK Person",
 		filters={
-			"employee": ["is", "not set"],
-			"is_active": 1
+			"employee_id": ["is", "not set"],
+			"is_active": 1,
+			"is_placeholder": 0
 		},
 		fields=["name", "pin", "full_name", "card_no"]
 	)
@@ -262,3 +299,27 @@ def bulk_map_employees():
 		"auto_mapped": mapped_count,
 		"unmapped": unmapped
 	}
+
+
+def retry_no_mapping_for_person(person_name):
+	"""Retry sync for all "No Mapping" check-ins when person gets employee_id"""
+	no_mapping_checkins = frappe.get_all(
+		"ZK Check-in Out",
+		filters={
+			"person": person_name,
+			"sync_status": "No Mapping"
+		},
+		limit=100
+	)
+	
+	for checkin in no_mapping_checkins:
+		frappe.enqueue(
+			'prime_att.zkteco.sync_manager.sync_checkin',
+			queue='default',
+			checkin_name=checkin.name
+		)
+
+
+def employee_doctype_available():
+	"""Check if Employee DocType is available"""
+	return frappe.db.table_exists("tabEmployee")
