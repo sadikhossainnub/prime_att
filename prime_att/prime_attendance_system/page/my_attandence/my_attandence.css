@@ -1,0 +1,359 @@
+/* My Attendance Page Styling */
+.my-attendance-wrapper {
+	padding: 15px 0 40px 0;
+	color: var(--text-color, #1f272e);
+}
+
+/* User Identity Banner */
+.my-att-user-bar {
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e2e8f0);
+	border-radius: 8px;
+	padding: 14px 20px;
+	margin-bottom: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	box-shadow: var(--card-shadow, 0 1px 3px rgba(0,0,0,0.05));
+}
+
+.my-att-user-info {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.my-att-avatar {
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: #2490ef;
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.my-att-user-details h4 {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--heading-color, #111827);
+}
+
+.my-att-user-details p {
+	margin: 2px 0 0 0;
+	font-size: 12px;
+	color: var(--text-muted, #64748b);
+}
+
+/* Today's Section */
+.my-att-section-title {
+	font-size: 15px;
+	font-weight: 600;
+	margin-bottom: 12px;
+	color: var(--heading-color, #0f172a);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.today-summary-card {
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e2e8f0);
+	border-radius: 10px;
+	padding: 20px;
+	margin-bottom: 25px;
+	box-shadow: var(--card-shadow, 0 1px 4px rgba(0,0,0,0.06));
+}
+
+.today-stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+.today-stat-box {
+	background: var(--subtle-fg, #f8fafc);
+	border: 1px solid var(--border-color, #f1f5f9);
+	border-radius: 8px;
+	padding: 12px 16px;
+}
+
+.today-stat-box .stat-label {
+	font-size: 12px;
+	color: var(--text-muted, #64748b);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 4px;
+}
+
+.today-stat-box .stat-value {
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--heading-color, #1e293b);
+}
+
+.today-stat-box.highlight {
+	background: #f0fdf4;
+	border-color: #bbf7d0;
+}
+.today-stat-box.highlight .stat-value {
+	color: #166534;
+}
+
+/* Punches Timeline */
+.today-punches-container {
+	border-top: 1px dashed var(--border-color, #e2e8f0);
+	padding-top: 14px;
+	margin-top: 10px;
+}
+
+.today-punches-container .punches-header {
+	font-size: 13px;
+	font-weight: 600;
+	margin-bottom: 8px;
+	color: var(--text-muted, #475569);
+}
+
+.punches-chips-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.punch-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 500;
+	border: 1px solid transparent;
+}
+
+.punch-chip.in {
+	background: #ecfdf5;
+	color: #065f46;
+	border-color: #a7f3d0;
+}
+
+.punch-chip.out {
+	background: #eff6ff;
+	color: #1e40af;
+	border-color: #bfdbfe;
+}
+
+.punch-chip.other {
+	background: #f1f5f9;
+	color: #334155;
+	border-color: #cbd5e1;
+}
+
+.punch-chip .punch-badge {
+	font-size: 10px;
+	font-weight: 700;
+	padding: 2px 6px;
+	border-radius: 4px;
+	background: rgba(0,0,0,0.08);
+}
+
+/* Month Filter Bar */
+.month-filter-bar {
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e2e8f0);
+	border-radius: 8px;
+	padding: 12px 18px;
+	margin-bottom: 20px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+}
+
+.month-filter-controls {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.month-summary-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.metric-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px;
+	background: var(--subtle-fg, #f8fafc);
+	border: 1px solid var(--border-color, #e2e8f0);
+	border-radius: 6px;
+	font-size: 12px;
+}
+
+.metric-pill .metric-num {
+	font-weight: 700;
+	color: var(--heading-color, #0f172a);
+}
+
+/* Attendance Table */
+.my-att-table-container {
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e2e8f0);
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: var(--card-shadow, 0 1px 3px rgba(0,0,0,0.05));
+}
+
+.my-att-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	text-align: left;
+}
+
+.my-att-table thead th {
+	background: var(--subtle-fg, #f8fafc);
+	color: var(--text-muted, #475569);
+	font-weight: 600;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--border-color, #e2e8f0);
+	text-transform: uppercase;
+	font-size: 11px;
+	letter-spacing: 0.5px;
+}
+
+.my-att-table tbody tr {
+	border-bottom: 1px solid var(--border-color, #f1f5f9);
+	transition: background-color 0.15s ease;
+}
+
+.my-att-table tbody tr:hover {
+	background-color: var(--hover-bg, #f8fafc);
+}
+
+.my-att-table tbody tr.is-today {
+	background-color: #fefce8 !important;
+	font-weight: 600;
+}
+
+.my-att-table tbody tr.is-weekend {
+	background-color: #fafafa;
+	opacity: 0.85;
+}
+
+.my-att-table td {
+	padding: 12px 16px;
+	vertical-align: middle;
+}
+
+/* Status Badges */
+.att-badge {
+	display: inline-block;
+	padding: 3px 8px;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 600;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.att-badge.present {
+	background: #dcfce7;
+	color: #15803d;
+}
+
+.att-badge.absent {
+	background: #fee2e2;
+	color: #b91c1c;
+}
+
+.att-badge.half-day {
+	background: #fef3c7;
+	color: #b45309;
+}
+
+.att-badge.weekend {
+	background: #f1f5f9;
+	color: #64748b;
+}
+
+.att-badge.upcoming {
+	background: #f8fafc;
+	color: #94a3b8;
+	border: 1px dashed #cbd5e1;
+}
+
+.att-badge.on-leave {
+	background: #e0e7ff;
+	color: #4338ca;
+}
+
+/* Empty State Card */
+.my-att-empty-card {
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e2e8f0);
+	border-radius: 12px;
+	padding: 44px 24px;
+	text-align: center;
+	max-width: 620px;
+	margin: 30px auto;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon-wrapper {
+	width: 68px;
+	height: 68px;
+	background: #eff6ff;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 18px;
+}
+
+.empty-card-title {
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--heading-color, #0f172a);
+	margin-bottom: 10px;
+}
+
+.empty-card-desc {
+	font-size: 13.5px;
+	line-height: 1.6;
+	color: var(--text-muted, #475569);
+	margin: 0 auto 16px auto;
+	max-width: 520px;
+}
+
+.empty-card-hint {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	padding: 8px 14px;
+	font-size: 12px;
+	color: #64748b;
+	margin-top: 6px;
+}
+
+.hint-tag {
+	background: #e2e8f0;
+	color: #334155;
+	font-weight: 600;
+	font-size: 10px;
+	padding: 2px 6px;
+	border-radius: 4px;
+	text-transform: uppercase;
+}

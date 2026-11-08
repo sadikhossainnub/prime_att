@@ -14,6 +14,7 @@
         "is_active",
         "cb1",
         "employee_id",
+        "user_id",
         "is_placeholder",
         "sb1",
         "devices"
@@ -63,6 +64,13 @@
             "fieldname": "employee_id",
             "fieldtype": "Data",
             "label": "Employee ID"
+        },
+        {
+            "description": "Linked Frappe User",
+            "fieldname": "user_id",
+            "fieldtype": "Link",
+            "label": "User",
+            "options": "User"
         },
         {
             "default": "0",

@@ -371,7 +371,8 @@ def get_zk_person_def():
 			{"fieldname": "privilege", "label": "Privilege", "fieldtype": "Select", "options": "0\n1\n2\n3", "default": "0", "description": "0=User, 1=Enroller, 2=Admin, 3=Super Admin"},
 			{"fieldname": "is_active", "label": "Is Active", "fieldtype": "Check", "default": 1, "in_list_view": 1},
 			{"fieldname": "cb1", "fieldtype": "Column Break"},
-			{"fieldname": "employee", "label": "Employee", "fieldtype": "Data", "description": "ERPNext Employee ID"},
+			{"fieldname": "employee_id", "label": "Employee ID", "fieldtype": "Data", "description": "ERPNext Employee ID"},
+			{"fieldname": "user_id", "label": "User", "fieldtype": "Link", "options": "User", "description": "Linked Frappe User"},
 			
 			{"fieldname": "sb1", "fieldtype": "Section Break", "label": "Device Registration"},
 			{"fieldname": "devices", "label": "Devices", "fieldtype": "Table", "options": "ZK Person Device"},
