@@ -143,18 +143,27 @@ def check_rate_limit(sn, ip=None):
 	"""
 	Check rate limit for device/IP
 	Returns True if rate limit exceeded
-	UNVERIFIED: Rate limit algorithm - current implementation uses simple counter per minute
 	"""
 	settings = frappe.get_single("ZK Settings")
 	max_requests = settings.get("rate_limit_requests", 60)
 	
+	try:
+		max_requests = int(max_requests) if max_requests else 0
+	except (ValueError, TypeError):
+		max_requests = 60
+
 	if not max_requests:
 		return False
 	
 	cache = frappe.cache()
 	minute_key = f"ratelimit:{sn}:{now()[:16]}"  # per minute
 	
-	count = cache.get(minute_key) or 0
+	count = cache.get(minute_key)
+	try:
+		count = int(count) if count else 0
+	except (ValueError, TypeError):
+		count = 0
+
 	if count >= max_requests:
 		return True
 	
