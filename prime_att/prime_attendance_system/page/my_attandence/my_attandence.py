@@ -611,6 +611,49 @@ def get_monthly_attendance(person, year, month, today_date):
 
 
 @frappe.whitelist()
+def debug_employee_link():
+	"""
+	Debug endpoint: shows why the current user is or isn't linked to an Employee profile.
+	Accessible by any logged-in user so they can self-diagnose.
+	"""
+	user = frappe.session.user
+	result = {
+		"user": user,
+		"employee_table_exists": frappe.db.table_exists("tabEmployee"),
+		"zk_person_table_exists": frappe.db.table_exists("tabZK Person"),
+		"employee_by_user_id": None,
+		"zk_person_by_user_id": None,
+		"profile_resolved": None,
+	}
+
+	# Check Employee by user_id
+	if frappe.db.table_exists("tabEmployee"):
+		emp = frappe.db.get_value(
+			"Employee",
+			{"user_id": user},
+			["name", "employee_name", "user_id", "attendance_device_id", "status"],
+			as_dict=True,
+		)
+		result["employee_by_user_id"] = emp
+
+	# Check ZK Person by user_id
+	if frappe.db.table_exists("tabZK Person") and frappe.db.has_column("ZK Person", "user_id"):
+		zk = frappe.db.get_value(
+			"ZK Person",
+			{"user_id": user},
+			["name", "pin", "full_name", "employee_id"],
+			as_dict=True,
+		)
+		result["zk_person_by_user_id"] = zk
+
+	# Try full profile resolution
+	profile = get_user_employee_profile(user)
+	result["profile_resolved"] = profile
+
+	return result
+
+
+@frappe.whitelist()
 def get_employees_for_admin():
 	"""
 	Returns list of active Employees (or ZK Persons) for System Manager / ZK Admin testing/selection.
