@@ -139,7 +139,7 @@ def restart_device(device_sn):
 	
 	Roles: ZK Admin, System Manager only
 	"""
-	frappe.only_for("ZK Admin", "System Manager")
+	frappe.only_for(["ZK Admin", "System Manager"])
 	
 	cmd_id = send_command(device_sn, "REBOOT", action_name="Restart Device")
 	frappe.msgprint(_("Restart command has been queued for {0}.").format(device_sn), indicator="blue")
@@ -153,7 +153,7 @@ def sync_device_time(device_sn):
 	
 	Roles: ZK Admin, System Manager only
 	"""
-	frappe.only_for("ZK Admin", "System Manager")
+	frappe.only_for(["ZK Admin", "System Manager"])
 	
 	# Format for ZKTeco time sync: SET OPTIONS DateTime=YYYY-MM-DD HH:MM:SS
 	current_time = frappe.utils.now()
@@ -171,7 +171,7 @@ def sync_all_users_to_device(device_sn):
 	
 	Roles: ZK Admin, System Manager only
 	"""
-	frappe.only_for("ZK Admin", "System Manager")
+	frappe.only_for(["ZK Admin", "System Manager"])
 	
 	# Filter out placeholder persons
 	persons = frappe.get_all(
@@ -204,7 +204,7 @@ def fetch_punches_from_device(device_sn):
 	
 	Roles: ZK Admin, System Manager, ZK Operator
 	"""
-	frappe.only_for("ZK Admin", "System Manager", "ZK Operator")
+	frappe.only_for(["ZK Admin", "System Manager", "ZK Operator"])
 	
 	# Get command template from settings
 	settings = frappe.get_single("ZK Settings")

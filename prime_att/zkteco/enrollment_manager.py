@@ -18,7 +18,7 @@ def enroll_fingerprint(person_name, device_sn, finger_index, overwrite=1):
 	
 	Roles: ZK Operator, ZK Admin, System Manager
 	"""
-	frappe.only_for("ZK Operator", "ZK Admin", "System Manager")
+	frappe.only_for(["ZK Operator", "ZK Admin", "System Manager"])
 	
 	person = frappe.get_doc("ZK Person", person_name)
 	device = frappe.get_doc("ZK Device", device_sn)
@@ -105,7 +105,7 @@ def push_to_devices(person_name, device_list=None):
 	
 	Roles: ZK Operator, ZK Admin, System Manager
 	"""
-	frappe.only_for("ZK Operator", "ZK Admin", "System Manager")
+	frappe.only_for(["ZK Operator", "ZK Admin", "System Manager"])
 	
 	person = frappe.get_doc("ZK Person", person_name)
 	
@@ -166,7 +166,7 @@ def delete_user_from_device(person_name, device_sn):
 	
 	Roles: ZK Admin, System Manager only
 	"""
-	frappe.only_for("ZK Admin", "System Manager")
+	frappe.only_for(["ZK Admin", "System Manager"])
 	
 	person = frappe.get_doc("ZK Person", person_name)
 	device = frappe.get_doc("ZK Device", device_sn)
@@ -193,7 +193,7 @@ def pull_users_from_device(device_sn):
 	
 	Roles: ZK Operator, ZK Admin, System Manager
 	"""
-	frappe.only_for("ZK Operator", "ZK Admin", "System Manager")
+	frappe.only_for(["ZK Operator", "ZK Admin", "System Manager"])
 	
 	device = frappe.get_doc("ZK Device", device_sn)
 	command = "DATA QUERY USERINFO"
@@ -211,7 +211,7 @@ def check_enrollment_status(enrollment_name):
 	
 	Roles: ZK Admin, System Manager
 	"""
-	frappe.only_for("ZK Admin", "System Manager")
+	frappe.only_for(["ZK Admin", "System Manager"])
 	
 	enrollment = frappe.get_doc("ZK Fingerprint Enrollment", enrollment_name)
 	
@@ -249,7 +249,7 @@ def bulk_map_employees():
 	
 	Roles: ZK Operator, ZK Admin, System Manager
 	"""
-	frappe.only_for("ZK Operator", "ZK Admin", "System Manager")
+	frappe.only_for(["ZK Operator", "ZK Admin", "System Manager"])
 	
 	# Check if Employee DocType is available
 	if not employee_doctype_available():

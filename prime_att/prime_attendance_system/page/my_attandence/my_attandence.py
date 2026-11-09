@@ -274,11 +274,21 @@ def get_today_punches(person, today_date):
 				})
 
 	# 3. Check ZK Punch
-	if frappe.db.table_exists("tabZK Punch") and pin:
+	pins = set()
+	if pin:
+		p_str = str(pin).strip()
+		pins.add(p_str)
+		if p_str.isdigit():
+			pins.add(str(int(p_str)))
+			pins.add(p_str.zfill(4))
+	if emp_id and emp_id != pin:
+		pins.add(str(emp_id).strip())
+
+	if frappe.db.table_exists("tabZK Punch") and pins:
 		punches = frappe.get_all(
 			"ZK Punch",
 			filters={
-				"pin": pin,
+				"pin": ["in", list(pins)],
 				"punch_time": ["between", [start_str, end_str]],
 			},
 			fields=["name", "punch_time", "status_code", "device"],
@@ -432,11 +442,21 @@ def get_monthly_attendance(person, year, month, today_date):
 				checkin_map[d_str].append(r)
 
 	# 4. Fetch ZK Punch records for the entire month as fallback
-	if frappe.db.table_exists("tabZK Punch") and pin:
+	month_pins = set()
+	if pin:
+		p_str = str(pin).strip()
+		month_pins.add(p_str)
+		if p_str.isdigit():
+			month_pins.add(str(int(p_str)))
+			month_pins.add(p_str.zfill(4))
+	if emp_id and emp_id != pin:
+		month_pins.add(str(emp_id).strip())
+
+	if frappe.db.table_exists("tabZK Punch") and month_pins:
 		punch_records = frappe.get_all(
 			"ZK Punch",
 			filters={
-				"pin": pin,
+				"pin": ["in", list(month_pins)],
 				"punch_time": ["between", [start_month_str, end_month_str]],
 			},
 			fields=["name", "punch_time", "status_code", "device"],

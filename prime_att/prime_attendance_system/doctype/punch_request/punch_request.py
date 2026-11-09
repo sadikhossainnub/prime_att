@@ -43,7 +43,7 @@ def approve_request(name):
 	
 	Roles: ZK Admin, System Manager only
 	"""
-	frappe.only_for("ZK Admin", "System Manager")
+	frappe.only_for(["ZK Admin", "System Manager"])
 	
 	doc = frappe.get_doc("Punch Request", name)
 	
@@ -95,7 +95,7 @@ def reject_request(name, rejection_reason=None):
 	
 	Roles: ZK Admin, System Manager only
 	"""
-	frappe.only_for("ZK Admin", "System Manager")
+	frappe.only_for(["ZK Admin", "System Manager"])
 	
 	doc = frappe.get_doc("Punch Request", name)
 	

@@ -288,7 +288,7 @@ def retry_failed_checkin(checkin_name):
 	
 	Roles: ZK Admin, System Manager
 	"""
-	frappe.only_for("ZK Admin", "System Manager")
+	frappe.only_for(["ZK Admin", "System Manager"])
 	
 	# Enqueue instead of running inline
 	frappe.enqueue(
