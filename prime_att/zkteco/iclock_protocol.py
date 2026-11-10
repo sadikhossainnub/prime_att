@@ -288,23 +288,32 @@ def handle_getrequest(sn, device):
 	# Check for Pending commands or Sent commands that timed out
 	timeout_time = frappe.utils.add_to_date(now(), seconds=-command_timeout)
 	
+	# Check for new Pending commands first
 	commands = frappe.get_all(
 		"ZK Device Command",
-		filters=[
-			["device", "=", sn],
-			["status", "in", ["Pending", "Sent"]],
-			"|",
-			["status", "=", "Pending"],
-			[
-				["status", "=", "Sent"],
-				["sent_time", "<", timeout_time],
-				["attempts", "<", max_attempts]
-			]
-		],
+		filters={
+			"device": sn,
+			"status": "Pending",
+		},
 		fields=["name", "command", "status", "attempts", "sent_time"],
 		order_by="creation asc",
 		limit=1
 	)
+	
+	# If no pending commands, check for Sent commands that timed out and need retry
+	if not commands:
+		commands = frappe.get_all(
+			"ZK Device Command",
+			filters={
+				"device": sn,
+				"status": "Sent",
+				"sent_time": ["<", timeout_time],
+				"attempts": ["<", max_attempts],
+			},
+			fields=["name", "command", "status", "attempts", "sent_time"],
+			order_by="creation asc",
+			limit=1
+		)
 	
 	if commands:
 		cmd = commands[0]
